@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Наш Каталог | Замовлення</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 40px;
+        }
+        .product-list {
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+        }
+        .product-card {
+            flex: 1;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            text-align: left;
+            background-color: #ffffff;
+        }
+        .product-card h3 {
+            color: #007bff;
+        }
+        .buy-button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+            width: 100%;
+            margin-top: 15px;
+        }
+        .buy-button:hover {
+            background-color: #1e7e34;
+        }
+        
+        /* ФОРМА ЗАМОВЛЕННЯ СТИЛІ */
+        #orderForm {
+            margin-top: 40px;
+            padding: 30px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            display: none; /* Спочатку прихована */
+            position: relative; /* Важливо для позиціонування хрестика */
+            text-align: left;
+        }
+        #orderForm label, #orderForm input {
+            display: block;
+            width: 100%;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+        #orderForm input[type="email"] {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        #orderForm button[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            width: auto; /* Щоб кнопка не була на всю ширину */
+        }
+        
+        /* СТИЛЬ ХРЕСТИКА (СКАНУВАННЯ) */
+        #cancelOrder {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.5em;
+            color: #ccc;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        #cancelOrder:hover {
+            color: #dc3545; /* Червоний колір при наведенні */
+        }
+        
+        /* Стиль для відображення обраного товару */
+        #selectedProductDisplay {
+            font-weight: bold;
+            color: #dc3545;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Оберіть Ваш Товар</h1>
+        
+        <div class="product-list">
+            
+            <div class="product-card">
+                <h3>Електронна Книга "Програмування для початківців"</h3>
+                <p>Ціна: 499 грн</p>
+                <p>Повний посібник для старту в IT-сфері.</p>
+                <button class="buy-button" data-product-name="Електронна Книга: Програмування">
+                    Купити Книгу
+                </button>
+            </div>
+            
+            <div class="product-card">
+                <h3>Консультація "Стратегія Маркетингу" (1 година)</h3>
+                <p>Ціна: 999 грн</p>
+                <p>Індивідуальна консультація з експертом у сфері продажів.</p>
+                <button class="buy-button" data-product-name="Консультація: Маркетинг">
+                    Замовити Консультацію
+                </button>
+            </div>
+            
+        </div>
+        
+        <div id="orderForm">
+            <span id="cancelOrder" title="Скасувати замовлення">❌</span>
+            
+            <p>Ви замовляєте: <span id="selectedProductDisplay"></span></p>
+            
+            <p>Введіть Вашу електронну пошту для зв'язку:</p>
+            
+            <form id="emailSubmitForm" method="POST" action="https://formspree.io/f/movppyaz">
+                
+                <label for="userEmail">Ваша Email-адреса:</label>
+                <input type="email" id="userEmail" name="email" required placeholder="example@gmail.com">
+                
+                <input type="hidden" id="productName" name="product" value="">
+                
+                <input type="hidden" name="_subject" value="НОВЕ ЗАМОВЛЕННЯ З САЙТУ">
+                
+                <button type="submit">Підтвердити замовлення</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const buyButtons = document.querySelectorAll('.buy-button');
+        const orderFormDiv = document.getElementById('orderForm');
+        const productNameInput = document.getElementById('productName');
+        const selectedProductDisplay = document.getElementById('selectedProductDisplay');
+        const productList = document.querySelector('.product-list');
+        const cancelOrderButton = document.getElementById('cancelOrder'); // Отримуємо хрестик
+        const emailSubmitForm = document.getElementById('emailSubmitForm'); // Отримуємо форму
+
+        // Функція для показу форми замовлення
+        function showOrderForm(productName) {
+            productNameInput.value = productName;
+            selectedProductDisplay.textContent = productName;
+            orderFormDiv.style.display = 'block';
+            productList.style.display = 'none';
+            orderFormDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Функція для скасування замовлення (приховуємо форму, показуємо товари)
+        function hideOrderForm() {
+            orderFormDiv.style.display = 'none';
+            productList.style.display = 'flex';
+            // Очищаємо поля форми
+            emailSubmitForm.reset();
+        }
+
+        // 1. Обробка натискання кнопок "Купити"
+        buyButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const productName = this.getAttribute('data-product-name');
+                showOrderForm(productName);
+            });
+        });
+
+        // 2. Обробка натискання кнопки скасування (хрестика)
+        cancelOrderButton.addEventListener('click', function() {
+            hideOrderForm();
+        });
+
+    </script>
+
+</body>
+</html>
